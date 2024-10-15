@@ -34,6 +34,7 @@ Plug 'lambdalisue/fern.vim'
 Plug 'lifepillar/vim-colortemplate'
 Plug 'wuelnerdotexe/vim-astro'
 Plug 'lifepillar/vim-colortemplate'
+Plug 'dense-analysis/ale'
 call plug#end()
 
 " Enabling syntax highlighting with Markdown code blocks
@@ -120,6 +121,9 @@ endif
 nnoremap <silent> <C-l> :term ++close ++rows=50 lazygit<CR>
 nnoremap <silent> <C-n> :call popup_create(term_start(shell, #{ hidden: 1, term_finish: 'close'}), #{ border: [], minwidth: float2nr(winwidth(0)*0.75), minheight: float2nr(&lines*0.75) })<CR>
 
+nnoremap <silent> ? <plug>(ale_detail)
+nnoremap <silent> <Space>f :ALEFixSuggest<CR>
+
 "" vim-lsp
 function! s:on_lsp_buffer_enabled() abort
     setlocal omnifunc=lsp#complete
@@ -137,6 +141,7 @@ function! s:on_lsp_buffer_enabled() abort
     nnoremap <buffer> <expr><C-k> lsp#scroll(-4)
 
     let g:lsp_format_sync_timeout = 1000
+    let g:lsp_diagnostics_enabled = 0
     autocmd! BufWritePre *.rs,*.go call execute('LspDocumentFormatSync')
 endfunction
 
