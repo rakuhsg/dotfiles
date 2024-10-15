@@ -1,0 +1,18 @@
+[env]
+TERM = "alacritty"
+
+[window]
+startup_mode = "Maximized"
+
+[font]
+size = 11
+
+[font.normal]
+family = "FiraCode Nerd Font"
+
+[window.padding]
+x = 12
+y = 12
+
+[keyboard]
+bindings = [ { key = "N", mods = "Control", action = "CreateNewWindow" }, ]
