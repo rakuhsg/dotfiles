@@ -174,3 +174,4 @@ hi Pmenu        ctermfg=147 ctermbg=0 cterm=NONE
 hi PmenuSel     ctermfg=85 ctermbg=239 cterm=NONE
 hi PmenuMatch   ctermfg=99 ctermbg=NONE cterm=NONE
 hi LineNr       ctermfg=60 ctermbg=NONE cterm=NONE
+let g:ale_set_highlights = 0
