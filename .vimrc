@@ -12,7 +12,8 @@ set shiftwidth=4
 set expandtab
 
 call plug#begin()
-
+Plug 'rakuhsg/lf.vim'
+Plug 'voldikss/vim-floaterm'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'prabirshrestha/vim-lsp'
 
@@ -28,8 +29,6 @@ Plug 'Shougo/ddc-matcher_head'
 Plug 'Shougo/ddc-sorter_rank'
 
 Plug 'tani/ddc-fuzzy'
-
-Plug 'lambdalisue/fern.vim'
 
 Plug 'lifepillar/vim-colortemplate'
 Plug 'wuelnerdotexe/vim-astro'
@@ -80,31 +79,14 @@ nnoremap <C-w>? :buffers<CR>
 call pum#set_option('preview', v:true)
 call pum#set_option('highlight_matches', 'PmenuMatch')
 
-"" map <C-f> :call FernPopup() <CR>
-nnoremap <Tab> :Fern . -reveal=%<CR>
 set splitright
 "" Editing
 """ Hide current mode text on command area.
 colorscheme slate
 set number
 set belloff=all
-"" Fern file browser
-let g:fern#default_hidden = 1
-function! s:init_fern() abort
-    setlocal nonumber
-    " Use 'expand-or-open' instead of 'enter'.
-    nmap <silent> <buffer> <plug>(fern-action-enter) <plug>(fern-action-open-or-expand)
-    " Use 'collapse' instead of 'leave'.
-    nmap <silent> <buffer> <plug>(fern-action-leave) <plug>(fern-action-collapse)
-    " Use 'open' instead of 'leave'.
-    nmap <silent> <buffer> <plug>(fern-action-leave) <plug>(fern-action-collapse)
-    nmap <silent> <buffer> q :bd<CR>
-endfunction
-      "
-augroup fern-custom
-    autocmd! *
-    autocmd FileType fern call s:init_fern()
-augroup END
+"" line breaks
+set ff=unix
 "" set clipboard=unnamedplus
 "" vim-astro
 let g:astro_typescript = 'enable'
@@ -114,15 +96,21 @@ if has('win32')
     let shell = "powershell"
     nnoremap <C-q> :vert term ++close ++cols=50 powershell<CR>
 else
-    let shell = "zsh" 
+    let shell = "zsh"
     nnoremap <C-q> :vert term ++close ++cols=50 zsh<CR>
 endif
 
-nnoremap <silent> <C-l> :term ++close ++rows=50 lazygit<CR>
+nnoremap <silent> <C-l> :FloatermNew --title=lg lazygit<CR>
+nnoremap <silent> <Tab> :Lf<CR>
 nnoremap <silent> <C-n> :call popup_create(term_start(shell, #{ hidden: 1, term_finish: 'close'}), #{ border: [], minwidth: float2nr(winwidth(0)*0.75), minheight: float2nr(&lines*0.75) })<CR>
 
+"" ALE
 nnoremap <silent> ? <plug>(ale_detail)
 nnoremap <silent> <Space>f :ALEFixSuggest<CR>
+let g:ale_fixers = {
+    \   '*': ['remove_trailing_lines', 'trim_whitespace'],
+    \}
+let g:ale_fix_on_save = 1
 
 "" vim-lsp
 function! s:on_lsp_buffer_enabled() abort
@@ -177,6 +165,7 @@ augroup lsp_install
     " call s:on_lsp_buffer_enabled only for languages that has the server registered.
     autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
 augroup END
+
 
 "" custom commands
 nnoremap <silent> <C-S-x> :term ./x<CR>
