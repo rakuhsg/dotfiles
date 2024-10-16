@@ -80,9 +80,6 @@ call pum#set_option('preview', v:true)
 call pum#set_option('highlight_matches', 'PmenuMatch')
 
 set splitright
-"" Editing
-""" Hide current mode text on command area.
-colorscheme slate
 set number
 set belloff=all
 "" line breaks
@@ -170,6 +167,8 @@ augroup END
 "" custom commands
 nnoremap <silent> <C-S-x> :term ./x<CR>
 
+colorscheme slate
+set termguicolors
 hi Pmenu        ctermfg=147 ctermbg=0 cterm=NONE
 hi PmenuSel     ctermfg=85 ctermbg=239 cterm=NONE
 hi PmenuMatch   ctermfg=99 ctermbg=NONE cterm=NONE
