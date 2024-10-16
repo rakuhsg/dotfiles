@@ -179,6 +179,4 @@ let g:terminal_ansi_colors = [
       \'#fb4934', '#b8bb26', '#fabd2f', '#83a598',
       \'#d3869b', '#8ec07c', '#fe8019', '#FBF1C7' ]
 
-set guioptions -=T
-set guioptions -=m
 let g:ale_set_highlights = 0
