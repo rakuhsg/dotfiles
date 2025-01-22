@@ -5,7 +5,7 @@ else
     lan en_US.UTF-8
 endif
 
-""" Set indent behivor with overwritable by editorconfig-vim.
+set nocompatible
 set backspace=indent,eol,start
 set tabstop=4
 set shiftwidth=4
@@ -30,10 +30,14 @@ Plug 'Shougo/ddc-sorter_rank'
 
 Plug 'tani/ddc-fuzzy'
 
+Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
 Plug 'lifepillar/vim-colortemplate'
 Plug 'wuelnerdotexe/vim-astro'
 Plug 'lifepillar/vim-colortemplate'
 Plug 'dense-analysis/ale'
+Plug 'rhysd/vim-lsp-ale'
+Plug 'rakuhsg/vim-darkgreen'
 call plug#end()
 
 " Enabling syntax highlighting with Markdown code blocks
@@ -79,6 +83,10 @@ nnoremap <C-w>? :buffers<CR>
 call pum#set_option('preview', v:true)
 call pum#set_option('highlight_matches', 'PmenuMatch')
 
+set laststatus=2
+set statusline="%f"
+syntax enable
+filetype plugin indent on
 set splitright
 "" Editing
 """ Hide current mode text on command area.
@@ -101,6 +109,7 @@ endif
 
 nnoremap <silent> <C-l> :FloatermNew --title=lg lazygit<CR>
 nnoremap <silent> <Tab> :Lf<CR>
+nnoremap <silent> <S-Tab> :FZF<CR>
 nnoremap <silent> <C-n> :call popup_create(term_start(shell, #{ hidden: 1, term_finish: 'close'}), #{ border: [], minwidth: float2nr(winwidth(0)*0.75), minheight: float2nr(&lines*0.75) })<CR>
 
 "" ALE
@@ -110,7 +119,20 @@ let g:ale_fixers = {
     \   '*': ['remove_trailing_lines', 'trim_whitespace'],
     \}
 let g:ale_fix_on_save = 1
+let g:ale_lint_on_save = 1
 
+let g:ale_set_highlights = 0
+
+let g:ale_fixers = {
+    \ 'typescript': ['eslint', 'prettier'],
+    \ 'typescriptreact': ['eslint', 'prettier'],
+    \ }
+let g:ale_linters = {
+    \ 'typescript': ['eslint'],
+    \ 'typescriptreact': ['eslint'],
+    \ 'rust': ['analyzer'],
+    \ }
+let g:ale_floating_preview = 1
 "" vim-lsp
 function! s:on_lsp_buffer_enabled() abort
     setlocal omnifunc=lsp#complete
@@ -159,6 +181,34 @@ if executable('rust-analyzer')
         \ })
 endif
 
+""" gleam
+if executable('gleam')
+    au User lsp_setup call lsp#register_server({
+        \   'name': 'gleam',
+        \   'cmd': {server_info->['gleam', 'lsp']},
+        \   'whitelist': ['gleam'],
+        \ })
+endif
+
+""" typescript-language-server
+if executable('typescript-language-server')
+    au User lsp_setup call lsp#register_server({
+      \ 'name': 'javascript support using typescript-language-server',
+      \ 'cmd': { server_info->[&shell, &shellcmdflag, 'typescript-language-server --stdio']},
+      \ 'root_uri': { server_info->lsp#utils#path_to_uri(lsp#utils#find_nearest_parent_directory(lsp#utils#get_buffer_path(), '.git/..'))},
+      \ 'whitelist': ['javascript', 'javascript.jsx', 'javascriptreact']
+      \ })
+endif
+
+""" pyright
+if executable('pyright')
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'pyright-langserver',
+        \ 'cmd': { server_info->[&shell, &shellcmdflag, 'pyright-langserver --stdio']},
+        \ 'whitelist': ['python']
+        \})
+endif
+
 augroup lsp_install
     au!
     " call s:on_lsp_buffer_enabled only for languages that has the server registered.
@@ -169,14 +219,5 @@ augroup END
 "" custom commands
 nnoremap <silent> <C-S-x> :term ./x<CR>
 
-"colorscheme slate
 set termguicolors
-"syntax off
-
-let g:terminal_ansi_colors = [
-      \'#282828', '#CC241D', '#98971A', '#D79921',
-      \'#458588', '#B16286', '#689D6A', '#D65D0E',
-      \'#fb4934', '#b8bb26', '#fabd2f', '#83a598',
-      \'#d3869b', '#8ec07c', '#fe8019', '#FBF1C7' ]
-
-let g:ale_set_highlights = 0
+colorscheme darkgreen
