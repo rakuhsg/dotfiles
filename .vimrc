@@ -1,4 +1,4 @@
-"" Change the interface language (Windows only)
+""  Change the interface language (Windows only)
 if has('win32')
     lan en
 else
@@ -38,6 +38,11 @@ Plug 'lifepillar/vim-colortemplate'
 Plug 'dense-analysis/ale'
 Plug 'rhysd/vim-lsp-ale'
 Plug 'rakuhsg/vim-darkgreen'
+Plug 'github/copilot.vim'
+Plug 'DanBradbury/copilot-chat.vim'
+
+" better quickfix behavior
+Plug 'yssl/QFEnter'
 call plug#end()
 
 " Enabling syntax highlighting with Markdown code blocks
@@ -101,16 +106,21 @@ let g:astro_typescript = 'enable'
 
 if has('win32')
     let shell = "powershell"
-    nnoremap <C-q> :vert term ++close ++cols=50 powershell<CR>
+    nnoremap <C-q>w :vert term ++close ++cols=50 powershell<CR>
 else
     let shell = "zsh"
-    nnoremap <C-q> :vert term ++close ++cols=50 zsh<CR>
+    nnoremap <C-q>w :vert term ++close ++cols=50 zsh<CR>
 endif
 
 nnoremap <silent> <C-l> :FloatermNew --title=lg lazygit<CR>
 nnoremap <silent> <Tab> :Lf<CR>
 nnoremap <silent> <S-Tab> :FZF<CR>
-nnoremap <silent> <C-n> :call popup_create(term_start(shell, #{ hidden: 1, term_finish: 'close'}), #{ border: [], minwidth: float2nr(winwidth(0)*0.75), minheight: float2nr(&lines*0.75) })<CR>
+nnoremap <silent> <C-q>p :call popup_create(term_start(shell, #{ hidden: 1, term_finish: 'close'}),
+    \ #{
+    \ border: [], minwidth: float2nr(winwidth(0)*0.75), minheight: float2nr(&lines * 0.75),
+    \ maxwidth: float2nr(winwidth(0)*0.75), maxheight: float2nr(&lines * 0.75),
+    \ })<CR>
+
 
 "" ALE
 nnoremap <silent> ? <plug>(ale_detail)
@@ -133,12 +143,24 @@ let g:ale_linters = {
     \ 'rust': ['analyzer'],
     \ }
 let g:ale_floating_preview = 1
+" QuickFix
+let g:qfenter_keymap = {}
+" Open an item under cursor in the quickfix window.
+let g:qfenter_keymap.open = ['<CR>', '<2-LeftMouse>']
+" Open an item under cursor in a new vertical split of the previously focused window.
+let g:qfenter_keymap.vopen = ['<Space><Space>']
+" Open an item under cursor in a new horizontal split from the previously focused window.
+let g:qfenter_keymap.hopen = ['<Space><CR>']
+" Open an item under cursor in a new tab.
+let g:qfenter_keymap.topen = ['<Space><Tab>']
 "" vim-lsp
 function! s:on_lsp_buffer_enabled() abort
     setlocal omnifunc=lsp#complete
     setlocal signcolumn=yes
     if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
 
+    nnoremap <silent> <buffer> <Space>r <plug>(lsp-references)
+    nnoremap <silent> <buffer> <Space>s <plug>(lsp-rename)
     nnoremap <silent> <buffer> <Space>d <plug>(lsp-peek-definition)
     nnoremap <silent> <buffer> <Space>gd <plug>(lsp-definition)
     nnoremap <silent> <buffer> <Space>i <plug>(lsp-implementation)
@@ -148,6 +170,7 @@ function! s:on_lsp_buffer_enabled() abort
     nnoremap <silent> <buffer> <Space>? <plug>(lsp-document-symbol-search)
     nnoremap <buffer> <expr><C-j> lsp#scroll(+4)
     nnoremap <buffer> <expr><C-k> lsp#scroll(-4)
+    nnoremap <buffer> <Space> :echom 'r: find references, s: rename, d: peek definition, i: implementation, j: peek declaration, gd: go to definition, gj: go to declaration, ?: symbol search, C-j: scroll down, C-k: scroll up'<CR>
 
     let g:lsp_format_sync_timeout = 1000
     let g:lsp_diagnostics_enabled = 0
@@ -218,6 +241,10 @@ augroup END
 
 "" custom commands
 nnoremap <silent> <C-S-x> :term ./x<CR>
+
+" clipboard
+command! YankToClipboard call system('pbcopy', getreg('"'))
+nnoremap <silent> <C-c> :call system('pbcopy ', getreg('"'))<CR>
 
 set termguicolors
 colorscheme darkgreen
