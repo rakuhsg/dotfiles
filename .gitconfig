@@ -1,0 +1,8 @@
+[user]
+	email = raku@exhibition.jp
+	name = Hasegawa, Raku
+	signingkey = BC4B4CEE4B0DC7E2E9250B10B63C5ACDB405000A
+[commit]
+	gpgsign = true
+[tag]
+	gpgSign = true
