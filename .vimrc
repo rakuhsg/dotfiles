@@ -1,4 +1,3 @@
-""  Change the interface language (Windows only)
 if has('win32')
     lan en
 else
@@ -105,26 +104,26 @@ let g:astro_typescript = 'enable'
 "" Custom terminal shortcut
 
 if has('win32')
-    let shell = "powershell"
-    nnoremap <C-q>w :vert term ++close ++cols=50 powershell<CR>
+    let g:term_shell = "powershell"
 else
-    let shell = "zsh"
-    nnoremap <C-q>w :vert term ++close ++cols=50 zsh<CR>
+    let g:term_shell = "fish"
 endif
 
-nnoremap <silent> <C-l> :FloatermNew --title=lg lazygit<CR>
+nnoremap <C-q>w :execute 'vert term ++close ++cols=50 ' . g:term_shell<CR>
+nnoremap <silent> <C-l> :FloatermNew --title=lazygit lazygit<CR>
 nnoremap <silent> <Tab> :Lf<CR>
 nnoremap <silent> <S-Tab> :FZF<CR>
-nnoremap <silent> <C-q>p :call popup_create(term_start(shell, #{ hidden: 1, term_finish: 'close'}),
+"nnoremap <silent> <C-q>p :call popup_create(term_start(g:term_shell, #{ hidden: 1, term_finish: 'close'}),
     \ #{
     \ border: [], minwidth: float2nr(winwidth(0)*0.75), minheight: float2nr(&lines * 0.75),
     \ maxwidth: float2nr(winwidth(0)*0.75), maxheight: float2nr(&lines * 0.75),
     \ })<CR>
+nnoremap <silent> <C-q>p :execute 'FloatermNew --autoclose=1 --title=' . g:term_shell . ' ' . g:term_shell <CR>
 
 
 "" ALE
 nnoremap <silent> ? <plug>(ale_detail)
-nnoremap <silent> <Space>f :ALEFixSuggest<CR>
+nnoremap <silent> <leader>f :ALEFixSuggest<CR>
 let g:ale_fixers = {
     \   '*': ['remove_trailing_lines', 'trim_whitespace'],
     \}
@@ -148,29 +147,29 @@ let g:qfenter_keymap = {}
 " Open an item under cursor in the quickfix window.
 let g:qfenter_keymap.open = ['<CR>', '<2-LeftMouse>']
 " Open an item under cursor in a new vertical split of the previously focused window.
-let g:qfenter_keymap.vopen = ['<Space><Space>']
+let g:qfenter_keymap.vopen = ['<leader><leader>']
 " Open an item under cursor in a new horizontal split from the previously focused window.
-let g:qfenter_keymap.hopen = ['<Space><CR>']
+let g:qfenter_keymap.hopen = ['<leader><CR>']
 " Open an item under cursor in a new tab.
-let g:qfenter_keymap.topen = ['<Space><Tab>']
+let g:qfenter_keymap.topen = ['<leader><Tab>']
 "" vim-lsp
 function! s:on_lsp_buffer_enabled() abort
     setlocal omnifunc=lsp#complete
     setlocal signcolumn=yes
     if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
 
-    nnoremap <silent> <buffer> <Space>r <plug>(lsp-references)
-    nnoremap <silent> <buffer> <Space>s <plug>(lsp-rename)
-    nnoremap <silent> <buffer> <Space>d <plug>(lsp-peek-definition)
-    nnoremap <silent> <buffer> <Space>gd <plug>(lsp-definition)
-    nnoremap <silent> <buffer> <Space>i <plug>(lsp-implementation)
-    nnoremap <silent> <buffer> <Space><Space> <plug>(lsp-hover)
-    nnoremap <silent> <buffer> <Space>j <plug>(lsp-peek-declaration)
-    nnoremap <silent> <buffer> <Space>gj <plug>(lsp-declaration)
-    nnoremap <silent> <buffer> <Space>? <plug>(lsp-document-symbol-search)
+    nnoremap <silent> <buffer> <leader>r <plug>(lsp-references)
+    nnoremap <silent> <buffer> <leader>s <plug>(lsp-rename)
+    nnoremap <silent> <buffer> <leader>d <plug>(lsp-peek-definition)
+    nnoremap <silent> <buffer> <leader>gd <plug>(lsp-definition)
+    nnoremap <silent> <buffer> <leader>i <plug>(lsp-implementation)
+    nnoremap <silent> <buffer> <leader><leader> <plug>(lsp-hover)
+    nnoremap <silent> <buffer> <leader>j <plug>(lsp-peek-declaration)
+    nnoremap <silent> <buffer> <leader>gj <plug>(lsp-declaration)
+    nnoremap <silent> <buffer> <leader>? <plug>(lsp-document-symbol-search)
     nnoremap <buffer> <expr><C-j> lsp#scroll(+4)
     nnoremap <buffer> <expr><C-k> lsp#scroll(-4)
-    nnoremap <buffer> <Space> :echom 'r: find references, s: rename, d: peek definition, i: implementation, j: peek declaration, gd: go to definition, gj: go to declaration, ?: symbol search, C-j: scroll down, C-k: scroll up'<CR>
+    nnoremap <buffer> <leader> :echom 'r: find references, s: rename, d: peek definition, i: implementation, j: peek declaration, gd: go to definition, gj: go to declaration, ?: symbol search, C-j: scroll down, C-k: scroll up'<CR>
 
     let g:lsp_format_sync_timeout = 1000
     let g:lsp_diagnostics_enabled = 0
@@ -238,13 +237,25 @@ augroup lsp_install
     autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
 augroup END
 
-
 "" custom commands
-nnoremap <silent> <C-S-x> :term ./x<CR>
+function! RunCmd()
+  call inputsave()
+  let name = input('raku@vim $ ')
+  call inputrestore()
+  execute 'FloatermNew --autoclose=0 --title=Run ' . name
+  "call popup_create(term_start(name, #{ hidden: 1 }),
+    \ #{
+    \ border: [], minwidth: float2nr(winwidth(0)*0.75), minheight: float2nr(&lines * 0.75),
+    \ maxwidth: float2nr(winwidth(0)*0.75), maxheight: float2nr(&lines * 0.75),
+    \ })
+endfunction
+
+nnoremap <silent> <C-x> :call RunCmd()<CR>
+
 
 " clipboard
-command! YankToClipboard call system('pbcopy', getreg('"'))
-nnoremap <silent> <C-c> :call system('pbcopy ', getreg('"'))<CR>
+command! YankToClipboard call system('wl-copy', getreg('"'))
+nnoremap <silent> <C-c> :call system('wl-copy', getreg('"'))<CR>
 
 set termguicolors
 colorscheme darkgreen
